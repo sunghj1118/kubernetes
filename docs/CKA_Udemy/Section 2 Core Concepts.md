@@ -236,3 +236,136 @@ High Availability (고가용성) Environment에서는 Cluster 내에 여러개�
 2. Kube Controller Manager
 3. Kube Scheduler
 4. Kubelet
+
+
+
+# 16. Kube-API Server
+
+역할 -
+
+- 클러스터의 주요 관리 컴포넌트
+- 사용자 요청을 인증하고 검증
+- etcd 클러스터에서 데이터 검색 및 업데이트
+
+동작 방식 -
+
+- `kubectl` 명령어 실행 시, 실제로 kube-apiserver에 연결
+    - kube-api server는 요청을 인증하고 검증한 후 etcd에서 데이터를 검색하여 응답
+        
+        ![Untitled](../../images//Untitled%203.png)
+        
+- 직접 api를 호출하여 작업도 가능
+    - kube-api server가 새로운 pod object를 생성. 
+    pod 생성 요청 시 kube-api server는 etcd 정보를 업데이트 하고, 스케줄러와 kubelet 등 다른 컴포넌트와 연동.
+
+![Untitled](../../images/Untitled%204.png)
+
+설정 및 실행:
+
+- kube-api server는 많은 파라미터와 함께 실행
+- 클러스터 구성 시 사용되는 인증서, 암호화 및 보안 옵션 포함
+- etcd 서버 위치 등 주요 정보 설정 필요
+- 설치 방식에 따라 설정 확인 방법이 다름 (kubdeadmin 사용여부)
+
+ 
+
+# 17. Kube Controller Manager
+
+역할 -
+
+- Kubernetes 내의 다양한 컨트롤러를 관리
+- 컨트롤러는 시스템의 특정 부분을 모니터링하고 조치
+
+![Untitled](../../images/Untitled%205.png)
+
+Node Monitor Period = 5s → 5초 마다 pod의 상태를 체크
+
+Node Monitor Grace Period = 40s → 40초동안 pod에서의 수신을 받지 못하면 UNREACHABLE
+
+POD Eviction Timeout = 5m → 백업 할 수 있는 시간. 백업 하지 않을 시, removes the PODS assigned to that node and provisions them on the healthy ones if the PODS are part of a replica set.
+
+- pod 개수는 유지되어야 하므로, 죽은 노드(컴퓨터)에 있던 pod는 죽이고 그 개수만큼 정상 노드들에 분산 배포함(프로비저닝)
+
+![Untitled](../../images/Untitled%206.png)
+
+Kube Controller Manager의 구성 및 위치
+
+- 모든 컨트롤러는 Kube Controller Manager 프로세스에 패키지됨
+- 설치 시 여러 컨트롤러도 함께 설치됨
+
+# 18. Kube Scheduler
+
+역할 -
+
+- Kubernetes에서 Pod가 어느 노드에 배치될지 결정.
+    - 실제로 pod를 노드에 배치하는 것은 kubelet의 역할.
+
+Kube-scheduler의 필요성
+
+- 다양한 크기와 목적의 컨테이너와 노드 (또는 선박) 간 최적의 매칭을 위해
+
+![Untitled](../../images/Untitled%207.png)
+
+스케줄링 과정
+
+- 필터링 단계: pod의 요구 사항에 맞지 않는 노트 필터링
+- 랭킹 단계: 필터링된 노드 중 최적의 노드 선정
+
+# 19. Kubelet
+
+역할 -
+
+- Kubernetes worker nodes에서의 주요 구성 요소로, ship의 선장과 같은 역할을 한다. (배에 있는 컨테이너의 상태를 주기적으로 보고, master로부터 지시를 받아 컨테이너를 로드 또는 언로드)
+
+![Untitled](../../images/Untitled%208.png)
+
+- Kubernetes cluster에 node를 등록.
+- Master의 지시를 받아 컨테이너 또는 pod를 생성하고 로드할 때, Docker와 같은 컨테이너 런타임 엔진에 필요한 이미지를 요청하고 인스턴스를 실행.
+- 주기적으로 Node & Pod의 상태를 모니터링.
+
+# 20. Kube Proxy
+
+역할 -
+
+클러스터 내의 pods이 서로 통신할 수 있게 하는 중요한 컴포넌트.
+
+![Untitled](../../images/Untitled%209.png)
+
+Pod network: 클러스터의 모든 노드에 걸쳐 확장되는 내부 가상 네트워크.
+
+Service: Pod의 IP 주소가 항상 동일하다는 것을 보장 X. 서비스를 통해, 다양한 Pods들을 안정적으로 연결하고 접근할 수 있게 된다.
+
+kube-proxy의 필요성:
+
+- Kubernetes cluster의 각 node에서 실행되는 프로세스.
+- 새로운 service가 생성될 때마다 해당 service로의 traffic을 backend pod으로 전달하도록 각 node에 규칙을 생성.
+
+동작 방식:
+
+- IP tables 규칙을 사용하여 이를 수행.
+- Service의 IP address로 오는 traffic을 실제 pod의 IP address로 전달하도록 IP tables 규칙을 생성한다.
+
+# 21. Pods
+
+Kubernetes에서는 컨테이너를 직접적으로 배포하는 대신, Pods라는 개체안에 컨테이너를 encapsulate하여 배포한다.
+
+Pods:
+
+- Kubernetes에서 생성할 수 있는 가장 작은 단위.
+- 각 Pods은 애플리케이션의 단인 인스턴스를 나타냄.
+
+![Untitled](../../images/Untitled%2010.png)
+
+Scaling:
+
+- 사용자가 증가할 경우 추가적인 Pods을 생성하여 애플리케이션을 스케일링할 수 있다.
+- 한 Pod 안에 추가 컨테이너를 넣어 스케일링하는 것이 아니라, 새로운 Pod을 추가하는 것이다.
+
+![Untitled](../../images/Untitled%2011.png)
+
+Multi Container Pods:
+
+- 하나의 Pod엔은 여러 containers가 있을 수 있다.
+- 이런 구조는 Helper container가 주 애플리케이션 container를 지원해야하는 경우에 사용된다.
+
+![Untitled](../../images/Untitled%2012.png)
