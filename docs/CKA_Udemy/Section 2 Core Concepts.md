@@ -369,3 +369,85 @@ Multi Container Pods:
 - 이런 구조는 Helper container가 주 애플리케이션 container를 지원해야하는 경우에 사용된다.
 
 ![Untitled](../../images/Untitled%2012.png)
+
+# 22. Pods with YAML
+
+pod-definition.yml
+
+must include the following:
+
+```bash
+apiVersion:
+kind:
+metadata:
+	name:
+	labels:
+		app:
+		type:
+spec:
+	containers:
+		- name: nginx-container
+			image: nginx
+```
+
+kind is the type of object to be made (ex:pod)
+
+metadata: names, labels, type, etc (form is dictionary) type is key-value pair
+
+- indicates that this is the first item in the list.
+
+creating a pod:
+
+`kubectl create - f pod-definition.yml`
+
+view pods:
+
+`kubectl get pods`
+
+view detailed information about pods:
+
+`kubectl describe pod myapp-pod`
+
+# 23. Demo - Pods with YAML
+
+Instead of using the kubectl run command, we run the pod using the YAML definition file.
+
+vim pod.yaml
+
+```bash
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+    tier: frontend
+spec:
+  containers:
+	- name: nginx
+    image: nginx
+  - name: busybox
+    image: busybox
+```
+
+2 spaces instead of tab
+
+`cat pod.yaml` to check that the file was created properly.
+
+`kubectl apply -f pod.yaml`
+
+-f (file name)
+
+apply can be used instead of create
+
+check status:
+
+`kubectl get pods`
+
+check more details of pod:
+
+`kubectl describe pod nginx`
+
+Create a new pod with the `nginx` image.
+
+`kubectl run nginx --image=nginx`
