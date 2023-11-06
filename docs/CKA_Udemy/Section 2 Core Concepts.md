@@ -451,3 +451,240 @@ check more details of pod:
 Create a new pod with the `nginx` image.
 
 `kubectl run nginx --image=nginx`
+
+# 29. ReplicaSets
+
+### Replication Controller
+
+> **What is a replica and why do we need replication controllers?**
+> 
+
+When a pod crashes, we don’t want users to lose access and therefore we have more than one instance/pod running at the same time.
+
+The Replication Controller allows us to have more than one instance of a single pod in the Kube cluster, providing `High Availability (고가용성)`.
+
+Even when there is only one pod, the Replication Controller can automatically bring up a new pod when it fails.
+
+The Replication Controller ensures that the specified number of pods are running at all times, be it 1 or 100.
+
+![Untitled](../../images/29-1.png)
+
+> **Load balancing and scaling**
+> 
+
+We also need Replication Controllers to create multiple pods to share the load across them.
+
+When the amount of users increases, we deploy additional pods in the node. When even more users increase such that the node cannot handle it, we can deploy more pods across multiple nodes in the cluster, providing `scalability (확장성)`.
+
+![Untitled](../../images/29-2.png)
+
+> **Replication Controller vs Replica Set**
+> 
+
+Replication Controller and the Replica Set provide the same purpose but the replica controller is the older version while the replica set is the newer recommended way.
+
+### Creating a Replication Controller
+
+1. Start by creating a replication controller definition yaml file. rc-definition.yml.
+    
+    ```yaml
+    apiVersion: v1
+    kind: ReplicationController
+    metadata:
+      name: myapp-rc
+      labels:
+        app: myapp
+        type: front-end
+    spec:
+      template: 
+        [ALL INFO REGARDING POD]
+      replicas: 3
+    ```
+    
+    ![Untitled](../../images/29-3.png)
+    
+    The replication parent is the parent and the pod is the child.
+    
+2. `kubectl create -f rc-definition.yml` to create the replication controller.
+3. `kubectl get replicationcontroller` to view the amount of replication controllers created
+4. `kubectl get pods` to view the pods created by the RC.
+
+### Creating a Replica Set
+
+1. Start by creating a replication controller definition yaml file. replicaset-definition.yml.
+    
+    ```yaml
+    apiVersion: apps/v1 # NOT just v1
+    kind: ReplicaSet
+    metadata:
+      name: myapp-replicaset
+      labels:
+        app: myapp
+        type: front-end
+    spec:
+      template: 
+        [ALL INFO REGARDING POD]
+      replicas: 3
+      selector: 
+    #replicaset NEEDS THIS
+    #specifies which pods fall under the RS. Needs it because RS can also manage pods that weren't created by it.
+    ```
+    
+    ![Untitled](../../images/29-4.png)
+    
+2. `kubectl create -f replicaset-definition.yml` to create the replicaset.
+3. `kubectl get replicaset` to view the amount of replica sets created
+4. `kubectl get pods` to view the pods created by the RS.
+
+### Labels and Selectors
+
+Why do we even label our pods?
+
+The ReplSet monitors our pods. However, if there are a lot of pods to monitor, it might not know which pods to monitor. Labeling helps this.
+
+The labels work as a filter to check which pods to monitor.
+
+![Untitled](../../images/29-5.png)
+
+### Scale
+
+How do we modify the amount of replicas to scale? (For example from 3 to 6 replicas).
+
+Method 1: Change yaml file and run the `kubectl replace -f replicaset-definition.yml` to update it.
+
+Method 2: `kubectl scale --replicas=6 -f replicaset-definition.yml` (same yml file) or `kubectl scale --replicas=6 replicaset myapp-replicaset` (type-name format).
+
+However the scale command will not change the original definition.yml code.
+
+### Commands
+
+![Untitled](../../images/29-6.png)
+
+# 30. PracticeTest - ReplicaSets
+
+- **Problems**
+    1. view pods → kubectl get pods
+    2. view replsets → kubectl get replicaset
+    3. view replset info → kubectl describe replicaset
+    4. view pod info → kubectl describe pods
+    5. delete pod → kubectl delete pod <pod-name>
+    6. problem: replicaset apiVersion uses `apps/v1`
+        
+        ![Untitled](../../images/30-1.png)
+        
+    7. problem: labels don’t match.
+        
+        ![Untitled](../../images/30-2.png)
+        
+    8. delete both replica sets → `kubectl delete replicaset <replicasetname>`
+    9. Use the command `kubectl edit` to edit the existing running replicaset.
+    10. Scale the ReplicaSet to 5 PODs → Use `kubectl scale rs new-replica-set --replicas=5`
+
+# 31. Solutions (skip)
+
+# 32. Deployments
+
+### Why we need Deployments
+
+1. We need many instances of a web server.
+2. We want to upgrade our docker instances, but not all of them at once since this can affect performance.
+- Rather, we want to ugrade them one by one (also called `rolling updates`)
+1. We also want to be able to rollback the recent changes in case of errors.
+2. We want apply a pause to our environment when several changes were made, not apply them immediately.
+
+![Untitled](../../images/32-1.png)
+
+### Pods
+- In this course, pods deploy single instances of our applications.
+- Each container is encapsulated in pods.
+- Multiple pods are deployed using replication controllers/replica sets.
+- ABOVE that exists `deployment`, a kube object that allows us to upgrade the underlying instances seamlessly using: rolling updates, undo changes, pause, resume changes.
+    
+    ![Untitled](../../images/32-2.png)
+    
+
+### Defining Deployments
+
+![Untitled](../../images/32-3.png)
+
+### commands
+![Untitled](../../images/32-4.png)
+
+
+# 33. Certification Tip
+### Making use of ‘kubectl run’
+
+It is a bit difficult to create and edit YAML files. Especially in the CLI. During the exam, you might find it difficult to copy and paste YAML files from browser to terminal.
+
+Using `kubectl run` facilitates this.
+
+**Create an NGINX Pod**
+
+`kubectl run nginx --image=nginx`
+
+**Generate POD Manifest YAML file (-o yaml). Don't create it(--dry-run)**
+
+`kubectl run nginx --image=nginx --dry-run=client -o yaml`
+
+**Create a deployment**
+
+`kubectl create deployment --image=nginx nginx`
+
+**Generate Deployment YAML file (-o yaml). Don't create it(--dry-run)**
+
+`kubectl create deployment --image=nginx nginx --dry-run=client -o yaml`
+
+**Generate Deployment YAML file (-o yaml). Don’t create it(–dry-run) and save it to a file.**
+
+`kubectl create deployment --image=nginx nginx --dry-run=client -o yaml > nginx-deployment.yaml`
+
+**Make necessary changes to the file (for example, adding more replicas) and then create the deployment.**
+
+`kubectl create -f nginx-deployment.yaml`
+
+**OR**
+
+**In k8s version 1.19+, we can specify the --replicas option to create a deployment with 4 replicas.**
+
+`kubectl create deployment --image=nginx nginx --replicas=4 --dry-run=client -o yaml > nginx-deployment.yaml`
+
+# 34. PracticeTest - Deployments
+
+- **Problems**
+    1. view pods → kubectl get pods
+    2. view replsets → kubectl get replicaset
+    3. view deployments → kubectl get deployment
+    4. view deployment info → kubectl describe deployment
+    5. problem: kind is lowercase ‘d’eployment
+    6. problem: create my own deployment.
+        
+        ![Untitled](../../images/34-1.png)
+        
+        ```yaml
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: httpd-frontend
+          labels: 
+            app: myapp
+            type: front-end
+        spec: 
+          template:
+            metadata:
+              name: myapp-pod
+              labels: 
+                app: myapp
+                type: front-end
+            spec: 
+              containers:
+              - name: alpine-container
+                image: httpd:2.4-alpine
+          replicas: 3
+          selector:
+            matchLabels: 
+              type: front-end
+        ```
+        
+    
+
+# 35. Solutions (skip)
