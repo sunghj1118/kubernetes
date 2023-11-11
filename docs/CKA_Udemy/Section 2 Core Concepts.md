@@ -688,3 +688,95 @@ Using `kubectl run` facilitates this.
     
 
 # 35. Solutions (skip)
+
+# 36. Services
+
+Kube services enable communication between components inside and outside of the application. 
+
+Kube services help us connect applications.  
+
+### External Access
+
+Kube node has an IP address 192.168.1.2
+
+Laptop is on the same network.
+
+Internal pod network is in range 10.244.0.0
+
+Pod has IP 10.244.0.2
+
+We could access the pod with a curl, but this accesses it from within the webserver, not the laptop.
+
+![Screenshot 2023-11-07 at 11.10.03 AM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/a56093bc-c2ff-4dc7-b5a6-9835f81edb7b/Screenshot_2023-11-07_at_11.10.03_AM.png)
+
+That is, we don’t want to ssh into the server and just curl right away from the laptop.
+
+The kube service helps with this.
+
+### Service Types
+
+NodePort: Service makes an internal port accessible on a port on the node.
+
+ClusterIP: Service creates a virtual IP inside the cluster to enable communication between different services like a set of frontend servers to a set of backend servers.
+
+LoadBalancer: Service makes a load balancer in supported cloud providers. 
+
+![Screenshot 2023-11-07 at 11.13.32 AM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/63d489c6-6715-4947-98e3-15bf913409fa/Screenshot_2023-11-07_at_11.13.32_AM.png)
+
+NodePort
+
+External access to the application by mapping a port on the node to a port on the Pod.
+
+![Screenshot 2023-11-07 at 11.14.56 AM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/4e49bca1-a1e9-442b-b839-a78f827920bd/Screenshot_2023-11-07_at_11.14.56_AM.png)
+
+There are three ports involved:
+
+Port 80: Port on the pod where the actual web server is running. (Target Port-That is where the service forwards their request to)
+
+Port on the service itself: “The Port - viewpoint of the service”. The service is like a virtual server inside the node. It has its own IP address. 
+
+NodePort: Port on the node itself. 
+
+![Screenshot 2023-11-07 at 6.14.54 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/7bdc4500-5295-4ab9-8c89-60cbe08309ba/Screenshot_2023-11-07_at_6.14.54_PM.png)
+
+![Screenshot 2023-11-07 at 6.16.29 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/d8677366-e181-488e-8f76-be05b47c90be/Screenshot_2023-11-07_at_6.16.29_PM.png)
+
+What about when we have multiple pods?
+
+A: Service automatically selects all three pods.
+
+![Screenshot 2023-11-07 at 6.18.15 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/555e1c1d-71d4-4d96-8b4d-46b2040983e4/Screenshot_2023-11-07_at_6.18.15_PM.png)
+
+On separate nodes on the cluster?
+
+A: All three available on the same port 30008.
+
+![Screenshot 2023-11-07 at 6.19.08 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/2f6b971b-5683-4c2f-a112-d9b42dbb7b7e/Screenshot_2023-11-07_at_6.19.08_PM.png)
+
+# 37. Services Cluster IP
+
+### What is the right way to establish connectivity between servers?
+
+The pods can go down any time, causing their IP addresses to be unreliable.
+
+Kube provides a single interface to access all the redis systems as one, and all the back-end servers as one Cluster IP.
+
+![Screenshot 2023-11-07 at 6.22.38 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/5bf969d4-f1b8-4b2d-85e3-a4f0254ae246/Screenshot_2023-11-07_at_6.22.38_PM.png)
+
+### How to define ClusterIPs?
+
+![Screenshot 2023-11-07 at 6.24.01 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/873da3aa-12f3-4d7e-ac36-2c3117424cc2/Screenshot_2023-11-07_at_6.24.01_PM.png)
+
+# 38. LoadBalancer
+
+Kubernetes can leverage with the native load balancers of certain cloud providers like AWS, GCP, or Azure.
+
+# 39. PracticeTest-Services
+
+How many services ? → `kubectl get service` 1 kube service is created at launch.
+
+What is the type of the default `kubernetes` service? → ClusterIP
+
+What is the targetPort? → `kubectl describe service kubernetes` 6443
+
+Create web-service → `kubectl apply -f /root/service-definition-1.yaml`
