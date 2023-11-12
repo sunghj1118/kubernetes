@@ -707,7 +707,7 @@ Pod has IP 10.244.0.2
 
 We could access the pod with a curl, but this accesses it from within the webserver, not the laptop.
 
-![Screenshot 2023-11-07 at 11.10.03 AM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/a56093bc-c2ff-4dc7-b5a6-9835f81edb7b/Screenshot_2023-11-07_at_11.10.03_AM.png)
+![Untitled](../../images/35-1.png)
 
 That is, we don’t want to ssh into the server and just curl right away from the laptop.
 
@@ -721,13 +721,13 @@ ClusterIP: Service creates a virtual IP inside the cluster to enable communicati
 
 LoadBalancer: Service makes a load balancer in supported cloud providers. 
 
-![Screenshot 2023-11-07 at 11.13.32 AM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/63d489c6-6715-4947-98e3-15bf913409fa/Screenshot_2023-11-07_at_11.13.32_AM.png)
+![Untitled](../../images/35-2.png)
 
 NodePort
 
 External access to the application by mapping a port on the node to a port on the Pod.
 
-![Screenshot 2023-11-07 at 11.14.56 AM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/4e49bca1-a1e9-442b-b839-a78f827920bd/Screenshot_2023-11-07_at_11.14.56_AM.png)
+![Untitled](../../images/35-3.png)
 
 There are three ports involved:
 
@@ -737,21 +737,21 @@ Port on the service itself: “The Port - viewpoint of the service”. The servi
 
 NodePort: Port on the node itself. 
 
-![Screenshot 2023-11-07 at 6.14.54 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/7bdc4500-5295-4ab9-8c89-60cbe08309ba/Screenshot_2023-11-07_at_6.14.54_PM.png)
+![Untitled](../../images/35-4.png)
 
-![Screenshot 2023-11-07 at 6.16.29 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/d8677366-e181-488e-8f76-be05b47c90be/Screenshot_2023-11-07_at_6.16.29_PM.png)
+![Untitled](../../images/35-5.png)
 
 What about when we have multiple pods?
 
 A: Service automatically selects all three pods.
 
-![Screenshot 2023-11-07 at 6.18.15 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/555e1c1d-71d4-4d96-8b4d-46b2040983e4/Screenshot_2023-11-07_at_6.18.15_PM.png)
+![Untitled](../../images/35-6.png)
 
 On separate nodes on the cluster?
 
 A: All three available on the same port 30008.
 
-![Screenshot 2023-11-07 at 6.19.08 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/2f6b971b-5683-4c2f-a112-d9b42dbb7b7e/Screenshot_2023-11-07_at_6.19.08_PM.png)
+![Untitled](../../images/35-7.png)
 
 # 37. Services Cluster IP
 
@@ -761,11 +761,11 @@ The pods can go down any time, causing their IP addresses to be unreliable.
 
 Kube provides a single interface to access all the redis systems as one, and all the back-end servers as one Cluster IP.
 
-![Screenshot 2023-11-07 at 6.22.38 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/5bf969d4-f1b8-4b2d-85e3-a4f0254ae246/Screenshot_2023-11-07_at_6.22.38_PM.png)
+![Untitled](../../images/37-1.png)
 
 ### How to define ClusterIPs?
 
-![Screenshot 2023-11-07 at 6.24.01 PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/97143298-64f8-4ed2-a9f3-1000d3da545e/873da3aa-12f3-4d7e-ac36-2c3117424cc2/Screenshot_2023-11-07_at_6.24.01_PM.png)
+![Untitled](../../images/37-2.png)
 
 # 38. LoadBalancer
 
